@@ -24,9 +24,15 @@ class ZentikNotifierConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         errors = {}
         if user_input is not None:
-            # Unicità: usiamo bucket_id come unique_id (se duplicato -> abort)
-            await self.async_set_unique_id(user_input[CONF_BUCKET_ID])
+            raw_users = user_input.get(CONF_USER_IDS, "")
+            if isinstance(raw_users, str):
+                user_list = [u.strip() for u in raw_users.split(",") if u.strip()]
+            else:
+                user_list = raw_users or []
+            combo_id = f"{user_input[CONF_BUCKET_ID]}|{','.join(sorted(user_list))}"
+            await self.async_set_unique_id(combo_id)
             self._abort_if_unique_id_configured()
+            user_input[CONF_USER_IDS] = user_list
             return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
 
         schema = vol.Schema(
@@ -52,9 +58,31 @@ class ZentikNotifierOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
+            raw_users = user_input.get(CONF_USER_IDS, "")
+            if isinstance(raw_users, str):
+                user_list = [u.strip() for u in raw_users.split(",") if u.strip()]
+            else:
+                user_list = raw_users or []
+            combo_id = f"{user_input[CONF_BUCKET_ID]}|{','.join(sorted(user_list))}"
+            from .const import DOMAIN  # local import
+            for entry in self.hass.config_entries.async_entries(DOMAIN):
+                if entry.entry_id == self.entry.entry_id:
+                    continue
+                existing_users = entry.data.get(CONF_USER_IDS, [])
+                if isinstance(existing_users, str):
+                    existing_users = [u.strip() for u in existing_users.split(",") if u.strip()]
+                existing_combo = f"{entry.data.get(CONF_BUCKET_ID)}|{','.join(sorted(existing_users))}"
+                if existing_combo == combo_id:
+                    schema = self._build_schema(user_input)
+                    return self.async_show_form(step_id="init", data_schema=schema, errors={"base": "already_configured"})
+            user_input[CONF_USER_IDS] = user_list
             return self.async_create_entry(title="", data=user_input)
         data = {**self.entry.data, **self.entry.options}
-        schema = vol.Schema(
+        schema = self._build_schema(data)
+        return self.async_show_form(step_id="init", data_schema=schema)
+
+    def _build_schema(self, data):
+        return vol.Schema(
             {
                 vol.Required(CONF_NAME, default=data.get(CONF_NAME)): str,
                 vol.Required(CONF_BUCKET_ID, default=data.get(CONF_BUCKET_ID)): str,
@@ -73,4 +101,3 @@ class ZentikNotifierOptionsFlow(config_entries.OptionsFlow):
                 ): str,
             }
         )
-        return self.async_show_form(step_id="init", data_schema=schema)

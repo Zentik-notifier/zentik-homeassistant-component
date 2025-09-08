@@ -44,7 +44,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         session=aiohttp.ClientSession(),
         unique_id=data.get(CONF_BUCKET_ID),
     )
-    # Forza entity_id nello schema richiesto notify.zentik_notifier_{name}
     object_id = f"zentik_notifier_{slugify(raw_name)}"
     entity.entity_id = async_generate_entity_id("notify.{}", object_id, hass=hass)
     async_add_entities([entity])
