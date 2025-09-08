@@ -1,0 +1,36 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zentik Notifier",
+        "description": "Configure a Zentik notifier instance.",
+        "data": {
+          "name": "Friendly Name",
+          "bucket_id": "Bucket ID",
+          "access_token": "Access Token",
+          "server_url": "Server URL",
+          "user_ids": "User IDs (comma separated)"
+        }
+      }
+    },
+    "error": {},
+    "abort": {
+      "already_configured": "Bucket already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Zentik Notifier Options",
+        "description": "Update parameters.",
+        "data": {
+          "name": "Friendly Name",
+          "bucket_id": "Bucket ID",
+          "access_token": "Access Token",
+          "server_url": "Server URL",
+          "user_ids": "User IDs (comma separated)"
+        }
+      }
+    }
+  }
+}

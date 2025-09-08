@@ -1,0 +1,12 @@
+{
+  "domain": "zentik_notifier",
+  "name": "Zentik Notifier",
+  "documentation": "https://github.com/Zentik-notifier/zentik-homeassistant-component#readme",
+  "issue_tracker": "https://github.com/Zentik-notifier/zentik-homeassistant-component/issues",
+  "version": "0.0.1",
+  "requirements": [],
+  "codeowners": ["@Zentik-notifier"],
+  "iot_class": "cloud_push",
+  "integration_type": "service",
+  "loggers": ["zentik_notifier"]
+}
