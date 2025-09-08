@@ -8,6 +8,8 @@ import aiohttp
 from homeassistant.components.notify import NotifyEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.util import slugify
+from homeassistant.helpers.entity import async_generate_entity_id
 
 from .const import (
     CONF_BUCKET_ID,
@@ -31,8 +33,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         user_ids = [u.strip() for u in user_ids.split(",") if u.strip()] if user_ids else []
     elif not isinstance(user_ids, list):
         user_ids = []
+    raw_name = data.get(CONF_NAME) or "zentik"
+    display_name = f"Zentik notifier {raw_name}"
     entity = ZentikNotifyEntity(
-        name=data.get(CONF_NAME) or "zentik",
+        name=display_name,
         bucket_id=data[CONF_BUCKET_ID],
         access_token=data[CONF_ACCESS_TOKEN],
         server_url=data.get(CONF_SERVER_URL) or DEFAULT_SERVER_URL,
@@ -40,6 +44,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         session=aiohttp.ClientSession(),
         unique_id=data.get(CONF_BUCKET_ID),
     )
+    # Forza entity_id nello schema richiesto notify.zentik_notifier_{name}
+    object_id = f"zentik_notifier_{slugify(raw_name)}"
+    entity.entity_id = async_generate_entity_id("notify.{}", object_id, hass=hass)
     async_add_entities([entity])
 
 
