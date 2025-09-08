@@ -4,14 +4,6 @@ Custom Home Assistant integration to create one or multiple notification service
 
 Each configured instance exposes a `notify` service that sends a JSON payload to the Zentik REST endpoint.
 
-## Features
-
-- UI configuration (Config Flow)
-- Multiple instances (different buckets / tokens)
-- Options Flow to edit parameters after creation
-- Sensible default for `server_url`
-- English & Italian translations
-
 ## Per‑Notifier Parameters
 
 | Field | Description | Required | Default |
@@ -48,7 +40,7 @@ You can later adjust them via the integration Options dialog.
 Call the created notify service from an automation or Developer Tools → Services. Example:
 
 ```yaml
-service: notify.zentik_notifier
+service: notify.zentik_notifier_name
 data:
 	title: "Test Title"
 	message: "Hello from Home Assistant"
@@ -73,33 +65,6 @@ JSON Body:
 	"userIds": ["user1", "user2"]
 }
 ```
-
-Change log:
-
-## Troubleshooting
-
-| Issue | Check |
-|-------|-------|
-| No service appears | Restart HA and clear browser cache; confirm folder path is correct. |
-| 4xx / 5xx errors in logs | Validate token & bucket; confirm endpoint reachable. |
-| Connection errors | Verify network / DNS and HTTPS accessibility. |
-
-## Security Notes
-Access token is stored in Home Assistant's storage area. Treat it as a secret. Rotate tokens periodically if supported by Zentik.
-
-## Development
-
-1. Fork & clone repo
-2. Place inside a HA dev environment under `config/custom_components/`
-3. Bump version in `manifest.json` before release
-
-Recommended extras (not yet included): tests (`pytest` with `pytest-homeassistant-custom-component`), CI workflow, code style (ruff / black), remote credential validation.
-
-## Roadmap / Ideas
-- Remote validation of credentials in Config Flow
-- Retry / backoff + error surfacing in UI
-- Rich notification fields (priority, tags)
-- Optional encryption
 
 ## License
 
