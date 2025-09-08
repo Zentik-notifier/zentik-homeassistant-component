@@ -5,7 +5,7 @@ from typing import Any
 
 import aiohttp
 
-from homeassistant.components.notify import BaseNotificationService
+from homeassistant.components.notify import NotifyEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
@@ -23,63 +23,75 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_get_service(hass: HomeAssistant, config: dict, discovery_info=None):  # legacy path not used with config entries
-    return None
-
-
-async def async_get_service_with_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
+    """Set up notify entity from a config entry."""
     data = {**entry.data, **entry.options}
     user_ids = data.get(CONF_USER_IDS)
     if isinstance(user_ids, str):
         user_ids = [u.strip() for u in user_ids.split(",") if u.strip()] if user_ids else []
     elif not isinstance(user_ids, list):
         user_ids = []
-    return ZentikNotifyService(
+    entity = ZentikNotifyEntity(
         name=data.get(CONF_NAME) or "zentik",
         bucket_id=data[CONF_BUCKET_ID],
         access_token=data[CONF_ACCESS_TOKEN],
         server_url=data.get(CONF_SERVER_URL) or DEFAULT_SERVER_URL,
         user_ids=user_ids,
         session=aiohttp.ClientSession(),
+        unique_id=data.get(CONF_BUCKET_ID),
     )
+    async_add_entities([entity])
 
 
-class ZentikNotifyService(BaseNotificationService):
-    def __init__(self, name: str, bucket_id: str, access_token: str, server_url: str, user_ids: list[str], session: aiohttp.ClientSession):
-        self._name = name
+class ZentikNotifyEntity(NotifyEntity):
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        name: str,
+        bucket_id: str,
+        access_token: str,
+        server_url: str,
+        user_ids: list[str],
+        session: aiohttp.ClientSession,
+        unique_id: str | None,
+    ) -> None:
+        self._attr_name = name
         self._bucket_id = bucket_id
         self._access_token = access_token
         self._server_url = server_url
         self._session = session
         self._user_ids = user_ids or []
-
-    @property
-    def name(self) -> str:  # pragma: no cover - trivial
-        return self._name
+        self._attr_unique_id = unique_id
 
     async def async_send_message(self, message: str = "", **kwargs: Any) -> None:
-        title = kwargs.get(ATTR_TITLE) or kwargs.get("title") or self._name
-        payload = {
+        title = kwargs.get(ATTR_TITLE) or kwargs.get("title") or self._attr_name
+        payload: dict[str, Any] = {
             "bucketId": self._bucket_id,
             "title": title,
             "message": message or kwargs.get(ATTR_MESSAGE) or "",
         }
         if self._user_ids:
             payload["userIds"] = self._user_ids
+        # Merge other keys
+        for k, v in kwargs.items():
+            if k in (ATTR_TITLE, ATTR_MESSAGE, "title"):
+                continue
+            payload.setdefault(k, v)
+        headers = {
+            "Authorization": f"Bearer {self._access_token}",
+            "Content-Type": "application/json",
+        }
         try:
-            headers = {
-                "Authorization": f"Bearer {self._access_token}",
-                "Content-Type": "application/json",
-            }
             async with self._session.post(self._server_url, json=payload, headers=headers, timeout=15) as resp:
                 if resp.status >= 400:
-                    txt = await resp.text()
+                    text = await resp.text()
                     _LOGGER.error(
-                        "Error sending Zentik notification (status=%s): %s", resp.status, txt
+                        "Zentik notify failed (status=%s): %s", resp.status, text
                     )
-        except Exception as err:  # pragma: no cover - network errors
-            _LOGGER.exception("Exception during sending Zentik notification: %s", err)
+        except Exception as err:  # pragma: no cover
+            _LOGGER.exception("Zentik notify exception: %s", err)
 
-    async def async_remove(self):  # pragma: no cover - cleanup
+    async def async_will_remove_from_hass(self) -> None:  # cleanup
         if not self._session.closed:
             await self._session.close()
