@@ -23,10 +23,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_get_service(hass: HomeAssistant, config: dict, discovery_info=None):  # pragma: no cover - entry path
-    # Called by forwarding the config entry; pick the first (only) entry_id from context
-    # The ConfigEntry object is available via hass.data in __init__, but HA passes entry via platform setup since 2023.6
-    # In modern HA we should use async_get_service_with_entry, but maintain compatibility.
+async def async_get_service(hass: HomeAssistant, config: dict, discovery_info=None):  # legacy path not used with config entries
     return None
 
 
