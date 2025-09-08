@@ -35,6 +35,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         user_ids = []
     raw_name = data.get(CONF_NAME) or "zentik"
     display_name = f"Zentik notifier {raw_name}"
+    # Unique id: bucket|user1,user2 (sorted) or bucket|- if empty
+    combo_key = ",".join(sorted(user_ids)) if user_ids else "-"
+    unique_id = f"{data[CONF_BUCKET_ID]}|{combo_key}"
     entity = ZentikNotifyEntity(
         name=display_name,
         bucket_id=data[CONF_BUCKET_ID],
@@ -42,7 +45,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         server_url=data.get(CONF_SERVER_URL) or DEFAULT_SERVER_URL,
         user_ids=user_ids,
         session=aiohttp.ClientSession(),
-        unique_id=data.get(CONF_BUCKET_ID),
+        unique_id=unique_id,
     )
     object_id = f"zentik_notifier_{slugify(raw_name)}"
     entity.entity_id = async_generate_entity_id("notify.{}", object_id, hass=hass)
