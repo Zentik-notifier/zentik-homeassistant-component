@@ -29,9 +29,6 @@ class ZentikNotifierConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_list = [u.strip() for u in raw_users.split(",") if u.strip()]
             else:
                 user_list = raw_users or []
-            combo_id = f"{user_input[CONF_BUCKET_ID]}|{','.join(sorted(user_list))}"
-            await self.async_set_unique_id(combo_id)
-            self._abort_if_unique_id_configured()
             user_input[CONF_USER_IDS] = user_list
             return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
 
@@ -63,18 +60,6 @@ class ZentikNotifierOptionsFlow(config_entries.OptionsFlow):
                 user_list = [u.strip() for u in raw_users.split(",") if u.strip()]
             else:
                 user_list = raw_users or []
-            combo_id = f"{user_input[CONF_BUCKET_ID]}|{','.join(sorted(user_list))}"
-            from .const import DOMAIN  # local import
-            for entry in self.hass.config_entries.async_entries(DOMAIN):
-                if entry.entry_id == self.entry.entry_id:
-                    continue
-                existing_users = entry.data.get(CONF_USER_IDS, [])
-                if isinstance(existing_users, str):
-                    existing_users = [u.strip() for u in existing_users.split(",") if u.strip()]
-                existing_combo = f"{entry.data.get(CONF_BUCKET_ID)}|{','.join(sorted(existing_users))}"
-                if existing_combo == combo_id:
-                    schema = self._build_schema(user_input)
-                    return self.async_show_form(step_id="init", data_schema=schema, errors={"base": "already_configured"})
             user_input[CONF_USER_IDS] = user_list
             return self.async_create_entry(title="", data=user_input)
         data = {**self.entry.data, **self.entry.options}
