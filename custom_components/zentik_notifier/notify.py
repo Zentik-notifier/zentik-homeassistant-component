@@ -34,8 +34,8 @@ SERVICE_SCHEMA = vol.Schema(
 )
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> bool:  # type: ignore[override]
-    """Register a classic notify.<service_name> without creating an entity."""
+async def async_register_service(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Register the notify.<service_name> service for this config entry."""
     # Merge data & options
     data = {**entry.data, **entry.options}
 
@@ -109,6 +109,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     _LOGGER.info("Registered notify service notify.%s", service_name)
     return True
+
+
+# Optional platform-style entry point (not used now, but kept for compatibility)
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities=None) -> bool:  # type: ignore[override]
+    return await async_register_service(hass, entry)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:  # pragma: no cover - simple

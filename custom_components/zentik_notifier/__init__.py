@@ -15,9 +15,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:  # pragm
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = entry.data
-    # Il servizio notify.<name> viene registrato in notify.async_setup_entry
-    # Importiamo dinamicamente per assicurarci che il modulo esegua la registrazione.
-    from . import notify  # noqa: F401
+    from . import notify
+    await notify.async_register_service(hass, entry)
     return True
 
 
