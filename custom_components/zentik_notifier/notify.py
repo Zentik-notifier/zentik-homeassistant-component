@@ -4,12 +4,11 @@ import logging
 from typing import Any
 
 import aiohttp
-from homeassistant.components.notify import BaseNotificationService
+from homeassistant.components.notify import NotifyEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 from homeassistant.helpers.entity import async_generate_entity_id
-from homeassistant.components.notify import NotifyEntity
 
 from .const import (
     CONF_BUCKET_ID,
@@ -25,7 +24,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_get_service_with_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     data = {**entry.data, **entry.options}
     user_ids = data.get(CONF_USER_IDS)
     if isinstance(user_ids, str):
@@ -33,64 +32,41 @@ async def async_get_service_with_entry(hass: HomeAssistant, entry: ConfigEntry):
     elif not isinstance(user_ids, list):
         user_ids = []
     raw_name = data.get(CONF_NAME) or "zentik"
-    service_name = f"zentik_notifier_{slugify(raw_name)}"
-    display_name = f"Zentik notifier {raw_name}"
-    return ZentikNotifyService(
-        service_name=service_name,
-        display_name=display_name,
+    object_id = f"zentik_notifier_{slugify(raw_name)}"
+    entity = ZentikNotifyEntity(
+        display_name=f"Zentik notifier {raw_name}",
+        object_id=object_id,
         bucket_id=data[CONF_BUCKET_ID],
         access_token=data[CONF_ACCESS_TOKEN],
         server_url=data.get(CONF_SERVER_URL) or DEFAULT_SERVER_URL,
         user_ids=user_ids,
     )
-
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):  # entity-platform path
-    service = await async_get_service_with_entry(hass, entry)
-    # Wrap into entity so forward_entry_setups works (HA expects entity platform for notify when forwarded)
-    raw_name = entry.data.get(CONF_NAME) or "zentik"
-    object_id = f"zentik_notifier_{slugify(raw_name)}"
-    entity = ZentikNotifyEntityWrapper(service, object_id)
     entity.entity_id = async_generate_entity_id("notify.{}", object_id, hass=hass)
     async_add_entities([entity])
     return True
 
 
-class ZentikNotifyEntityWrapper(NotifyEntity):
+class ZentikNotifyEntity(NotifyEntity):
     _attr_has_entity_name = True
 
-    def __init__(self, service: 'ZentikNotifyService', object_id: str):
-        self._service = service
-        self._attr_name = service._display_name  # type: ignore[attr-defined]
-        self._object_id = object_id
-
-    async def async_send_message(self, message: str = "", **kwargs: Any) -> None:  # delegate
-        await self._service.async_send_message(message, **kwargs)
-
-
-class ZentikNotifyService(BaseNotificationService):
     def __init__(
         self,
-        service_name: str,
         display_name: str,
+        object_id: str,
         bucket_id: str,
         access_token: str,
         server_url: str,
         user_ids: list[str],
     ) -> None:
-        self._service_name = service_name
-        self._display_name = display_name
+        self._attr_name = display_name
+        self._object_id = object_id
         self._bucket_id = bucket_id
         self._access_token = access_token
         self._server_url = server_url
         self._user_ids = user_ids or []
 
-    @property
-    def name(self) -> str:  # notify.<name>
-        return self._service_name
-
     async def async_send_message(self, message: str = "", **kwargs: Any) -> None:
-        title = kwargs.get(ATTR_TITLE) or kwargs.get("title") or self._display_name
+        title = kwargs.get(ATTR_TITLE) or kwargs.get("title") or self._attr_name
         payload: dict[str, Any] = {
             "bucketId": self._bucket_id,
             "title": title,
