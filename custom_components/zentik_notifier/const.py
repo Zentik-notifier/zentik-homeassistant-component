@@ -1,5 +1,4 @@
 DOMAIN = "zentik_notifier"
-PLATFORMS = ["notify"]
 
 CONF_BUCKET_ID = "bucket_id"
 CONF_ACCESS_TOKEN = "access_token"

@@ -44,6 +44,9 @@ service: notify.zentik_notifier_name
 data:
 	title: "Test Title"
 	message: "Hello from Home Assistant"
+	data:
+	  custom_key: 123
+	  nested_value: abc
 ```
 
 If you add multiple instances, service names may be suffixed (e.g. `notify.zentik_notifier_bucket123`).
@@ -62,9 +65,13 @@ JSON Body:
 	"bucketId": "<bucket_id>",
 	"title": "...",
 	"message": "...",
-	"userIds": ["user1", "user2"]
+	"userIds": ["user1", "user2"],
+	"custom_key": 123,
+	"nested_value": "abc"
 }
 ```
+
+	Note: se il campo `data` è un dizionario, le sue coppie chiave/valore vengono aggiunte al livello principale del payload (solo chiavi non già presenti). Se `data` non è un dizionario (stringa, numero, ecc.) viene inviato come chiave singola `data`.
 
 ## License
 
