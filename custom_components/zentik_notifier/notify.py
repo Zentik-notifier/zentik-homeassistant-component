@@ -122,7 +122,7 @@ class ZentikNotifyEntity(NotifyEntity):
         payload: dict[str, Any] = {
             "bucketId": self._bucket_id,
             "title": title,
-            "message": message or kwargs.get(ATTR_MESSAGE) or "",
+            "body": message or kwargs.get(ATTR_MESSAGE) or "",
         }
         if self._user_ids:
             payload["userIds"] = self._user_ids
