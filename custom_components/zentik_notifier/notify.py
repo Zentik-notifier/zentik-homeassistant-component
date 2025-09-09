@@ -10,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 from homeassistant.helpers.entity import async_generate_entity_id
+from homeassistant.helpers.service import verify_domain_control
 
 from .const import (
     CONF_BUCKET_ID,
@@ -57,6 +58,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         user_ids,
     )
     async_add_entities([entity])
+
+    # Also register a direct notify service so user can call action: notify.<shortname>
+    short_service = object_id  # same slug (without domain prefix)
+    domain = "notify"
+
+    async def _handle_service(call):
+        # Map service data to entity send
+        data = dict(call.data)
+        message = data.pop("message", data.pop("msg", ""))
+        title = data.pop("title", None)
+        if title:
+            data[ATTR_TITLE] = title
+        await entity.async_send_message(message=message, **data)
+
+    # Avoid double registration if reloading entry
+    service_name = short_service
+    if hass.services.has_service(domain, service_name):
+        _LOGGER.debug("Service notify.%s already exists, skipping register", service_name)
+    else:
+        _LOGGER.debug("Registering legacy notify service notify.%s", service_name)
+        hass.services.async_register(domain, service_name, verify_domain_control(hass, domain)(_handle_service))
 
 
 class ZentikNotifyEntity(NotifyEntity):
