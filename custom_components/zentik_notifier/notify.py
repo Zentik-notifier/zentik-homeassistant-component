@@ -8,6 +8,8 @@ from homeassistant.components.notify import BaseNotificationService
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
+from homeassistant.helpers.entity import async_generate_entity_id
+from homeassistant.components.notify import NotifyEntity
 
 from .const import (
     CONF_BUCKET_ID,
@@ -41,6 +43,29 @@ async def async_get_service_with_entry(hass: HomeAssistant, entry: ConfigEntry):
         server_url=data.get(CONF_SERVER_URL) or DEFAULT_SERVER_URL,
         user_ids=user_ids,
     )
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):  # entity-platform path
+    service = await async_get_service_with_entry(hass, entry)
+    # Wrap into entity so forward_entry_setups works (HA expects entity platform for notify when forwarded)
+    raw_name = entry.data.get(CONF_NAME) or "zentik"
+    object_id = f"zentik_notifier_{slugify(raw_name)}"
+    entity = ZentikNotifyEntityWrapper(service, object_id)
+    entity.entity_id = async_generate_entity_id("notify.{}", object_id, hass=hass)
+    async_add_entities([entity])
+    return True
+
+
+class ZentikNotifyEntityWrapper(NotifyEntity):
+    _attr_has_entity_name = True
+
+    def __init__(self, service: 'ZentikNotifyService', object_id: str):
+        self._service = service
+        self._attr_name = service._display_name  # type: ignore[attr-defined]
+        self._object_id = object_id
+
+    async def async_send_message(self, message: str = "", **kwargs: Any) -> None:  # delegate
+        await self._service.async_send_message(message, **kwargs)
 
 
 class ZentikNotifyService(BaseNotificationService):
