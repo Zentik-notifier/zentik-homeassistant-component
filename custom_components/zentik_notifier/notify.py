@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 import aiohttp
+import voluptuous as vol
 
 from homeassistant.components.notify import NotifyEntity
 from homeassistant.config_entries import ConfigEntry
@@ -63,6 +64,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     short_service = object_id  # same slug (without domain prefix)
     domain = "notify"
 
+    # Schema per suggerimenti Dev Tools
+    service_schema = vol.Schema(
+        {
+            vol.Required("message"): vol.Any(str, int, float),
+            vol.Optional("title"): vol.Any(str, int, float),
+            vol.Optional("data"): dict,
+        }
+    )
+
     async def _handle_service(call):
         # Map service data to entity send
         data = dict(call.data)
@@ -78,7 +88,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         _LOGGER.debug("Service notify.%s already exists, skipping register", service_name)
     else:
         _LOGGER.debug("Registering legacy notify service notify.%s", service_name)
-        hass.services.async_register(domain, service_name, verify_domain_control(hass, domain)(_handle_service))
+        hass.services.async_register(
+            domain,
+            service_name,
+            verify_domain_control(hass, domain)(_handle_service),
+            schema=service_schema,
+        )
 
 
 class ZentikNotifyEntity(NotifyEntity):
