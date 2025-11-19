@@ -56,11 +56,3 @@ data:
 				value: "..."
 				icon: house
 				title: Open homeassistant
-```
-If you add multiple instances, service names may be suffixed (e.g. `notify.zentik_notifier_bucket123`).
-```
-## License
-
-MIT License – see `LICENSE` file.
-
-
