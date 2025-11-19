@@ -45,34 +45,20 @@ data:
 	title: "Test Title"
 	message: "Hello from Home Assistant"
 	data:
-	  custom_key: 123
-	  nested_value: abc
+		subtitle: ",,,"
+		collapseId: "..."
+		groupId: "..."
+		imageUrl: "..."
+		addMarkAsReadAction: "true"
+		addDeleteAction: "true"
+		actions:
+			- type: NAVIGATE
+				value: "..."
+				icon: house
+				title: Open homeassistant
 ```
-
 If you add multiple instances, service names may be suffixed (e.g. `notify.zentik_notifier_bucket123`).
-
-## Payload Sent
-
-HTTP Headers:
 ```
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-JSON Body:
-```json
-{
-	"bucketId": "<bucket_id>",
-	"title": "...",
-	"message": "...",
-	"userIds": ["user1", "user2"],
-	"custom_key": 123,
-	"nested_value": "abc"
-}
-```
-
-	Note: se il campo `data` è un dizionario, le sue coppie chiave/valore vengono aggiunte al livello principale del payload (solo chiavi non già presenti). Se `data` non è un dizionario (stringa, numero, ecc.) viene inviato come chiave singola `data`.
-
 ## License
 
 MIT License – see `LICENSE` file.
