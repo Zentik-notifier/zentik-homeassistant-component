@@ -3,5 +3,7 @@
   "domain": "zentik_notifier",
   "country": "IT",
   "content_in_root": false,
-  "render_readme": true
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "zentik_notifier.zip"
 }

@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload-asset:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate tag matches manifest version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          TAG_VERSION="${TAG_NAME#v}"
+
+          MANIFEST_VERSION="$(python -c 'import json, pathlib; p = pathlib.Path("custom_components/zentik_notifier/manifest.json"); print(json.loads(p.read_text(encoding="utf-8"))["version"])')"
+
+          echo "Release tag:      ${TAG_NAME}"
+          echo "Release version:  ${TAG_VERSION}"
+          echo "Manifest version: ${MANIFEST_VERSION}"
+
+          if [[ "${TAG_VERSION}" != "${MANIFEST_VERSION}" ]]; then
+            echo "ERROR: Tag version (${TAG_VERSION}) does not match manifest.json version (${MANIFEST_VERSION})." >&2
+            exit 1
+          fi
+
+      - name: Create release zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f zentik_notifier.zip
+          zip -r zentik_notifier.zip custom_components/zentik_notifier
+
+      - name: Upload asset to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: zentik_notifier.zip
