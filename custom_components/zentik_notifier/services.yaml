@@ -1,0 +1,38 @@
+send:
+  name: Send notification
+  description: >
+    Send a notification through Zentik.
+
+    Note: this integration also creates one or more dynamic `notify.*` services
+    (for each configured notifier). This service is a generic alternative that
+    can target a specific config entry.
+  fields:
+    entry_id:
+      name: Config entry id
+      description: >
+        Optional. If provided, sends only through that specific Zentik Notifier
+        config entry. If omitted, sends through all configured entries.
+      example: "a1b2c3d4e5f6..."
+      required: false
+      selector:
+        text:
+    title:
+      name: Title
+      description: Notification title.
+      example: "Home Assistant"
+      required: false
+      selector:
+        text:
+    message:
+      name: Message
+      description: Notification body.
+      example: "Hello from Home Assistant"
+      required: true
+      selector:
+        text:
+    data:
+      name: Extra data
+      description: Optional extra payload forwarded to Zentik.
+      required: false
+      selector:
+        object:

@@ -34,6 +34,65 @@ SERVICE_SCHEMA = vol.Schema(
 )
 
 
+async def async_send_from_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    title: str | None,
+    message: str,
+    extra: dict[str, Any],
+) -> None:
+    """Send a notification using the given config entry."""
+    data = {**entry.data, **entry.options}
+
+    user_ids = data.get(CONF_USER_IDS)
+    if isinstance(user_ids, str):
+        user_ids = [u.strip() for u in user_ids.split(",") if u.strip()] if user_ids else []
+    elif not isinstance(user_ids, list):
+        user_ids = []
+
+    raw_name = data.get(CONF_NAME) or "zentik"
+    bucket_id = data[CONF_BUCKET_ID]
+    access_token = data[CONF_ACCESS_TOKEN]
+    server_url = data.get(CONF_SERVER_URL) or DEFAULT_SERVER_URL
+
+    payload: dict[str, Any] = {
+        "bucketId": bucket_id,
+        "title": title or raw_name,
+        "body": message or "",
+    }
+
+    if (custom_data := extra.get("data")) is not None:
+        if isinstance(custom_data, dict):
+            for dk, dv in custom_data.items():
+                if dk in ("bucketId", "title", "body"):
+                    continue
+                payload.setdefault(dk, dv)
+        else:
+            payload.setdefault("data", custom_data)
+
+    if user_ids:
+        payload["userIds"] = user_ids
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(server_url, json=payload, headers=headers, timeout=15) as resp:
+                if resp.status >= 400:
+                    text = await resp.text()
+                    _LOGGER.error(
+                        "Zentik notify failed (entry_id=%s status=%s): %s",
+                        entry.entry_id,
+                        resp.status,
+                        text,
+                    )
+    except Exception:  # pragma: no cover
+        _LOGGER.exception("Zentik notify exception (entry_id=%s)", entry.entry_id)
+
+
 async def async_register_service(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Register the notify.<service_name> service for this config entry."""
     # Merge data & options
@@ -49,48 +108,11 @@ async def async_register_service(hass: HomeAssistant, entry: ConfigEntry) -> boo
     raw_name = data.get(CONF_NAME) or "zentik"
     service_name = f"zentik_notifier_{slugify(raw_name)}"
 
-    bucket_id = data[CONF_BUCKET_ID]
-    access_token = data[CONF_ACCESS_TOKEN]
-    server_url = data.get(CONF_SERVER_URL) or DEFAULT_SERVER_URL
-
-    async def _async_send(title: str | None, message: str, extra: dict[str, Any]) -> None:
-        payload: dict[str, Any] = {
-            "bucketId": bucket_id,
-            "title": title or raw_name,
-            "body": message or "",
-        }
-        if (custom_data := extra.get("data")) is not None:
-            # Se dict appiattiamo chiave per chiave; altrimenti manteniamo come 'data'
-            if isinstance(custom_data, dict):
-                for dk, dv in custom_data.items():
-                    if dk in ("bucketId", "title", "body"):  # non sovrascrivere core
-                        continue
-                    payload.setdefault(dk, dv)
-            else:
-                payload.setdefault("data", custom_data)
-        if user_ids:
-            payload["userIds"] = user_ids
-    # Nessuna fusione di altre chiavi extra: schema limita i campi.
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-        }
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.post(server_url, json=payload, headers=headers, timeout=15) as resp:
-                    if resp.status >= 400:
-                        text = await resp.text()
-                        _LOGGER.error(
-                            "Zentik notify failed (service=%s status=%s): %s", service_name, resp.status, text
-                        )
-        except Exception:  # pragma: no cover
-            _LOGGER.exception("Zentik notify exception (service=%s)", service_name)
-
     async def _handle_service(call: ServiceCall) -> None:
         data_call = dict(call.data)
         title = data_call.get(ATTR_TITLE) or data_call.get("title")
         message = data_call.get(ATTR_MESSAGE) or data_call.get("message") or ""
-        await _async_send(title, message, data_call)
+        await async_send_from_entry(hass, entry, title, message, data_call)
 
     # Register the service under domain 'notify'
     if hass.services.has_service("notify", service_name):
