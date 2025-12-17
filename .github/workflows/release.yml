@@ -71,7 +71,8 @@ jobs:
         run: |
           set -euo pipefail
           rm -f zentik_notifier.zip
-          zip -r zentik_notifier.zip custom_components/zentik_notifier
+          (cd custom_components && zip -r ../zentik_notifier.zip zentik_notifier)
+          unzip -l zentik_notifier.zip | grep -q "^\s*.* zentik_notifier/manifest\.json$"
 
       - name: Create GitHub Release + upload asset
         if: steps.version.outputs.release_needed == 'true'
