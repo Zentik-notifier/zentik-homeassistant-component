@@ -1,6 +1,5 @@
 {
   "name": "Zentik Notifier",
-  "country": "DE",
   "content_in_root": false,
   "render_readme": true,
   "hide_default_branch": true

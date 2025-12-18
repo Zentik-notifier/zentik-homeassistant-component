@@ -1,5 +1,7 @@
 # Zentik Notifier (HACS Custom Integration)
 
+[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Zentik-notifier&repository=zentik-homeassistant-component&category=integration)
+
 Custom Home Assistant integration to create one or multiple notification services backed by the Zentik cloud API.
 
 Each configured instance exposes a `notify` service that sends a JSON payload to the Zentik REST endpoint.
@@ -17,7 +19,12 @@ Each configured instance exposes a `notify` service that sends a JSON payload to
 
 Notes:
 - Authentication must be provided as **either** `bucket_id` + `access_token` **or** `magic_code`.
+
 ## Installation (HACS)
+
+Fastest way:
+- Click the badge at the top (My Home Assistant) and add the repository to HACS.
+- Then install **Zentik Notifier** from HACS → Integrations.
 
 1. Open HACS → Integrations → Menu (⋮) → Custom repositories
 2. Add repository URL: `https://github.com/Zentik-notifier/zentik-homeassistant-component` with category `Integration`
