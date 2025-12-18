@@ -11,7 +11,7 @@ Each configured instance exposes a `notify` service that sends a JSON payload to
 | name | Friendly name shown in HA | Yes | — |
 | bucket_id | Zentik Bucket ID | Yes | — |
 | access_token | Zentik Access Token | Yes | — |
-| server_url | Zentik API endpoint | No | https://notifier-api.zentik.app/api/v1/messages |
+| server_url | Zentik API endpoint | No | https://notifier-api.zentik.app/messages |
 | user_ids | Target user IDs (comma separated in UI) | No | — |
 
 ## Installation (HACS)

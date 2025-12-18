@@ -36,3 +36,184 @@ send:
       required: false
       selector:
         object:
+
+    subtitle:
+      name: Subtitle
+      description: Optional subtitle forwarded to Zentik.
+      required: false
+      selector:
+        text:
+
+    collapseId:
+      name: Collapse id
+      description: Optional collapse id forwarded to Zentik.
+      required: false
+      selector:
+        text:
+
+    groupId:
+      name: Group id
+      description: Optional group id forwarded to Zentik.
+      required: false
+      selector:
+        text:
+
+    imageUrl:
+      name: Image URL
+      description: Optional image URL forwarded to Zentik.
+      required: false
+      selector:
+        text:
+
+    addMarkAsReadAction:
+      name: Add mark as read action
+      description: If true, adds a mark-as-read action.
+      required: false
+      selector:
+        boolean:
+
+    addDeleteAction:
+      name: Add delete action
+      description: If true, adds a delete action.
+      required: false
+      selector:
+        boolean:
+
+    actions:
+      name: Actions
+      description: Optional list of actions forwarded to Zentik.
+      required: false
+      selector:
+        object:
+
+    tapAction:
+      name: Tap action
+      description: Optional action executed when tapping the notification.
+      required: false
+      selector:
+        object:
+
+    attachments:
+      name: Attachments
+      description: Optional list of attachments (objects) forwarded to Zentik.
+      required: false
+      selector:
+        object:
+
+    attachmentUuids:
+      name: Attachment UUIDs
+      description: Optional list of already-uploaded attachment UUIDs.
+      required: false
+      selector:
+        object:
+
+    attachmentOptions:
+      name: Attachment options
+      description: Optional attachment options (e.g. mediaType/name).
+      required: false
+      selector:
+        object:
+
+    userIds:
+      name: User IDs
+      description: Optional list of user IDs to target (overrides the config entry recipients).
+      required: false
+      selector:
+        object:
+
+    videoUrl:
+      name: Video URL
+      description: Optional video URL.
+      required: false
+      selector:
+        text:
+
+    gifUrl:
+      name: GIF URL
+      description: Optional GIF URL.
+      required: false
+      selector:
+        text:
+
+    tapUrl:
+      name: Tap URL
+      description: Optional URL used for tap handling.
+      required: false
+      selector:
+        text:
+
+    sound:
+      name: Sound
+      description: Optional sound identifier.
+      required: false
+      selector:
+        text:
+
+    deliveryType:
+      name: Delivery type
+      description: Optional delivery type (e.g. SILENT).
+      required: false
+      selector:
+        text:
+
+    addOpenNotificationAction:
+      name: Add open notification action
+      description: If true, adds an open-notification action.
+      required: false
+      selector:
+        boolean:
+
+    snoozes:
+      name: Snoozes
+      description: Optional list of snooze offsets (minutes).
+      required: false
+      selector:
+        object:
+
+    postpones:
+      name: Postpones
+      description: Optional list of postpone offsets (minutes).
+      required: false
+      selector:
+        object:
+
+    locale:
+      name: Locale
+      description: Optional locale string.
+      required: false
+      selector:
+        text:
+
+    magicCode:
+      name: Magic code
+      description: Optional magic code.
+      required: false
+      selector:
+        text:
+
+    remindEveryMinutes:
+      name: Remind every minutes
+      description: Optional reminder interval in minutes.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100000
+          mode: box
+
+    maxReminders:
+      name: Max reminders
+      description: Optional maximum number of reminders.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100000
+          mode: box
+
+    executionId:
+      name: Execution ID
+      description: Optional execution id for idempotency/tracing.
+      required: false
+      selector:
+        text:
