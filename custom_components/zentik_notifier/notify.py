@@ -123,6 +123,13 @@ async def async_send_from_entry(
     magic_code = data.get(CONF_MAGIC_CODE)
     server_url = data.get(CONF_SERVER_URL) or DEFAULT_SERVER_URL
 
+    if not magic_code and not (bucket_id and access_token):
+        _LOGGER.error(
+            "Invalid Zentik configuration for entry_id=%s: provide bucket_id+access_token or magic_code",
+            entry.entry_id,
+        )
+        return
+
     payload: dict[str, Any] = {
         "title": title or raw_name,
         "body": message or "",

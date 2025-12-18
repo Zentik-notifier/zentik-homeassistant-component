@@ -8,17 +8,26 @@
           "name": "Friendly Name",
           "bucket_id": "Bucket ID",
           "access_token": "Access Token",
+          "magic_code": "Magic Code",
           "server_url": "Server URL",
           "user_ids": "User IDs (comma separated)"
         }
       }
     },
-    "error": {},
+    "error": {
+      "auth_required": "Provide either Bucket ID + Access Token, or a Magic Code",
+      "choose_one_auth": "Provide only one authentication method (token or magic code)"
+    },
     "abort": {
       "already_configured": "Bucket already configured"
     }
   },
   "options": {
+    "error": {
+      "already_configured": "Notifier already configured",
+      "auth_required": "Provide either Bucket ID + Access Token, or a Magic Code",
+      "choose_one_auth": "Provide only one authentication method (token or magic code)"
+    },
     "step": {
       "init": {
         "title": "Zentik Notifier Options",
@@ -27,6 +36,7 @@
           "name": "Friendly Name",
           "bucket_id": "Bucket ID",
           "access_token": "Access Token",
+          "magic_code": "Magic Code",
           "server_url": "Server URL",
           "user_ids": "User IDs (comma separated)"
         }

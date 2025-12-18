@@ -8,17 +8,26 @@
           "name": "Nome",
           "bucket_id": "Bucket ID",
           "access_token": "Access Token",
+          "magic_code": "Magic Code",
           "server_url": "Server URL",
           "user_ids": "User IDs (separate da virgola)"
         }
       }
     },
-    "error": {},
+    "error": {
+      "auth_required": "Inserisci Bucket ID + Access Token oppure un Magic Code",
+      "choose_one_auth": "Inserisci solo un metodo di autenticazione (token o magic code)"
+    },
     "abort": {
       "already_configured": "Bucket già configurato"
     }
   },
   "options": {
+    "error": {
+      "already_configured": "Notifier già configurato",
+      "auth_required": "Inserisci Bucket ID + Access Token oppure un Magic Code",
+      "choose_one_auth": "Inserisci solo un metodo di autenticazione (token o magic code)"
+    },
     "step": {
       "init": {
         "title": "Opzioni Zentik Notifier",
@@ -27,6 +36,7 @@
           "name": "Nome",
           "bucket_id": "Bucket ID",
           "access_token": "Access Token",
+          "magic_code": "Magic Code",
           "server_url": "Server URL",
           "user_ids": "User IDs (separate da virgola)"
         }

@@ -58,8 +58,8 @@ class ZentikNotifierConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     magic_code=magic_code,
                     user_ids=user_list,
                 )
-            await self.async_set_unique_id(unique_combo)
-            self._abort_if_unique_id_configured()
+                await self.async_set_unique_id(unique_combo)
+                self._abort_if_unique_id_configured()
 
                 cleaned: dict = {
                     CONF_NAME: user_input[CONF_NAME],
@@ -110,6 +110,11 @@ class ZentikNotifierOptionsFlow(config_entries.OptionsFlow):
                 errors["base"] = "choose_one_auth"
 
             user_list = _normalize_user_ids(user_input.get(CONF_USER_IDS, ""))
+
+            if errors:
+                schema = self._build_schema(user_input)
+                return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
+
             candidate_unique = _build_unique_combo(
                 bucket_id=bucket_id,
                 magic_code=magic_code,
@@ -132,10 +137,6 @@ class ZentikNotifierOptionsFlow(config_entries.OptionsFlow):
                 if existing_combo == candidate_unique:
                     schema = self._build_schema(user_input)
                     return self.async_show_form(step_id="init", data_schema=schema, errors={"base": "already_configured"})
-
-            if errors:
-                schema = self._build_schema(user_input)
-                return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
 
             cleaned: dict = {
                 CONF_NAME: user_input.get(CONF_NAME),

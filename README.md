@@ -9,11 +9,14 @@ Each configured instance exposes a `notify` service that sends a JSON payload to
 | Field | Description | Required | Default |
 |-------|-------------|----------|---------|
 | name | Friendly name shown in HA | Yes | — |
-| bucket_id | Zentik Bucket ID | Yes | — |
-| access_token | Zentik Access Token | Yes | — |
+| bucket_id | Zentik Bucket ID | One of | — |
+| access_token | Zentik Access Token | One of | — |
+| magic_code | Zentik Magic Code | One of | — |
 | server_url | Zentik API endpoint | No | https://notifier-api.zentik.app/messages |
 | user_ids | Target user IDs (comma separated in UI) | No | — |
 
+Notes:
+- Authentication must be provided as **either** `bucket_id` + `access_token` **or** `magic_code`.
 ## Installation (HACS)
 
 1. Open HACS → Integrations → Menu (⋮) → Custom repositories
@@ -29,8 +32,8 @@ Copy the `custom_components/zentik_notifier` folder into your Home Assistant `co
 
 During setup you will be asked for:
 - Friendly name
-- Bucket ID
-- Access Token
+- Bucket ID + Access Token (optional)
+- Magic Code (optional)
 - (Optional) Server URL
 
 You can later adjust them via the integration Options dialog.
@@ -44,15 +47,14 @@ service: notify.zentik_notifier_name
 data:
 	title: "Test Title"
 	message: "Hello from Home Assistant"
-	data:
-		subtitle: ",,,"
-		collapseId: "..."
-		groupId: "..."
-		imageUrl: "..."
-		addMarkAsReadAction: "true"
-		addDeleteAction: "true"
-		actions:
-			- type: NAVIGATE
-				value: "..."
-				icon: house
-				title: Open homeassistant
+	subtitle: ",,,"
+	collapseId: "..."
+	groupId: "..."
+	imageUrl: "..."
+	addMarkAsReadAction: true
+	addDeleteAction: true
+	actions:
+		- type: NAVIGATE
+			value: "..."
+			icon: house
+			title: Open homeassistant
