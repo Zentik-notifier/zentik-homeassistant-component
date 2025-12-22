@@ -21,14 +21,14 @@ send:
       name: Title
       description: Notification title.
       example: "Home Assistant"
-      required: false
+      required: true
       selector:
         text:
     message:
       name: Message
       description: Notification body.
       example: "Hello from Home Assistant"
-      required: true
+      required: false
       selector:
         text:
     data:

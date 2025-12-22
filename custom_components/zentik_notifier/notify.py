@@ -69,8 +69,8 @@ ATTACHMENT_OPTIONS_SCHEMA = vol.Schema(
 # Schema for the notify.<service_name> call
 SERVICE_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_MESSAGE): cv.string,
-        vol.Optional(ATTR_TITLE): cv.string,
+        vol.Required(ATTR_TITLE): cv.string,
+        vol.Optional(ATTR_MESSAGE, default=""): cv.string,
         vol.Optional("data"): dict,
         vol.Optional("subtitle"): cv.string,
         vol.Optional("collapseId"): cv.string,
@@ -132,8 +132,10 @@ async def async_send_from_entry(
 
     payload: dict[str, Any] = {
         "title": title or raw_name,
-        "body": message or "",
     }
+
+    if message:
+        payload["body"] = message
 
     if magic_code:
         payload["magicCode"] = magic_code

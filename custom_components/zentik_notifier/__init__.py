@@ -19,8 +19,8 @@ SERVICE_SEND = "send"
 SERVICE_SEND_SCHEMA = vol.Schema(
     {
         vol.Optional("entry_id"): cv.string,
-        vol.Optional("title"): cv.string,
-        vol.Required("message"): cv.string,
+        vol.Required("title"): cv.string,
+        vol.Optional("message", default=""): cv.string,
         vol.Optional("data"): dict,
         vol.Optional("subtitle"): cv.string,
         vol.Optional("collapseId"): cv.string,
